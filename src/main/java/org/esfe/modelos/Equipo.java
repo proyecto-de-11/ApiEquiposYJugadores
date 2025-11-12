@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -22,7 +23,7 @@ public class Equipo {
 
     // FK a la API de Usuarios: el usuario que creó el equipo
     @Column(name = "creado_por", nullable = false)
-    private Integer creadoPor; 
+    private Integer creadoPor;
 
     @Column(name = "tipo_deporte_id", nullable = false)
     private Integer tipoDeporteId;
@@ -43,8 +44,8 @@ public class Equipo {
     private String ciudad;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "nivel", columnDefinition = "ENUM('principiante', 'intermedio', 'avanzado', 'profesional')")
-    private String nivel;
+    @Column(name = "nivel", columnDefinition = "VARCHAR(20)")
+    private NivelEquipo nivel;
 
     @Column(name = "max_miembros", columnDefinition = "INT DEFAULT 15")
     private Integer maxMiembros = 15;
@@ -53,7 +54,7 @@ public class Equipo {
     private Boolean requiereAprobacion = true;
 
     @Column(name = "calificacion_promedio", precision = 3, scale = 2, columnDefinition = "DECIMAL(3, 2) DEFAULT 0")
-    private Double calificacionPromedio = 0.0;
+    private BigDecimal calificacionPromedio = BigDecimal.ZERO;
 
     @Column(name = "total_calificaciones", columnDefinition = "INT DEFAULT 0")
     private Integer totalCalificaciones = 0;
