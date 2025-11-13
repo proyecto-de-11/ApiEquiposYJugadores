@@ -1,9 +1,6 @@
 package org.esfe.servicios.interfaces;
 
-import org.esfe.dtos.equipo.ActivarEquipoDto;
-import org.esfe.dtos.equipo.EquipoGuardarDto;
-import org.esfe.dtos.equipo.EquipoModificarDto;
-import org.esfe.dtos.equipo.EquipoSalidaDto;
+import org.esfe.dtos.equipo.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -19,6 +16,7 @@ public interface IEquipoService {
     void eliminarPorId(Integer id);
 
     EquipoSalidaDto cambiarEstado(ActivarEquipoDto activarEquipoDto);
+    EquipoSalidaDto cambiarEstadoAprobacion(AprobarEquipoDto aprobarEquipoDto);
 
     // Paginación y Filtrado Principal
     Page<EquipoSalidaDto> obtenerEquiposPaginadosYFiltrados(Optional<String> busqueda, Pageable pageable);
