@@ -1,9 +1,6 @@
 package org.esfe.servicios.implementaciones;
 
-import org.esfe.dtos.equipo.ActivarEquipoDto;
-import org.esfe.dtos.equipo.EquipoGuardarDto;
-import org.esfe.dtos.equipo.EquipoModificarDto;
-import org.esfe.dtos.equipo.EquipoSalidaDto;
+import org.esfe.dtos.equipo.*;
 import org.esfe.modelos.Equipo;
 import org.esfe.repositorios.IEquipoRepository;
 import org.esfe.servicios.interfaces.IEquipoService;
@@ -146,5 +143,16 @@ public class EquipoService implements IEquipoService {
         Page<Equipo> equipoPage = equipoRepository.findByCalificacionPromedioGreaterThanEqual(calificacionMinima, sortedPageable);
 
         return equipoPage.map(this::mapToDto);
+    }
+    @Override
+    public EquipoSalidaDto cambiarEstadoAprobacion(AprobarEquipoDto aprobarEquipoDto) {
+        Equipo existente = equipoRepository.findById(aprobarEquipoDto.getId())
+                .orElseThrow(() -> new NoSuchElementException("Equipo no encontrado con ID: " + aprobarEquipoDto.getId()));
+
+        // Actualiza solo el campo de requerimiento de aprobación
+        existente.setRequiereAprobacion(aprobarEquipoDto.getRequiereAprobacion());
+
+        Equipo actualizado = equipoRepository.save(existente);
+        return mapToDto(actualizado);
     }
 }
