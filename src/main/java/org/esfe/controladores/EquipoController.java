@@ -1,9 +1,6 @@
 package org.esfe.controladores;
 
-import org.esfe.dtos.equipo.ActivarEquipoDto;
-import org.esfe.dtos.equipo.EquipoGuardarDto;
-import org.esfe.dtos.equipo.EquipoModificarDto;
-import org.esfe.dtos.equipo.EquipoSalidaDto;
+import org.esfe.dtos.equipo.*;
 import org.esfe.servicios.interfaces.IEquipoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -122,6 +119,18 @@ public class EquipoController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al eliminar el equipo: " + e.getMessage());
+        }
+    }
+    @PutMapping("/aprobacion/{id}")
+    public ResponseEntity<?> cambiarAprobacion(@PathVariable Integer id, @Valid @RequestBody AprobarEquipoDto aprobarEquipoDto) {
+        try {
+            aprobarEquipoDto.setId(id);
+            EquipoSalidaDto actualizado = equipoService.cambiarEstadoAprobacion(aprobarEquipoDto);
+            return ResponseEntity.ok(actualizado);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al cambiar el estado de aprobación: " + e.getMessage());
         }
     }
 }
