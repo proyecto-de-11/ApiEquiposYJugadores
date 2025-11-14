@@ -23,4 +23,7 @@ public interface IEquipoService {
 
     Page<EquipoSalidaDto> obtenerEquiposPorTipoDeporte(Integer tipoDeporteId, Pageable pageable);
     Page<EquipoSalidaDto> obtenerEquiposPorCalificacionMinima(Double calificacionMinima, Pageable pageable);
+
+    // Obtener equipos por id del usuario.
+    Page<EquipoSalidaDto> obtenerEquiposPorUsuario(Integer usuarioId, Pageable pageable);
 }
