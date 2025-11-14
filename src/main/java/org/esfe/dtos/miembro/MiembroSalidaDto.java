@@ -6,6 +6,8 @@ import lombok.Setter;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import org.esfe.dtos.equipo.EquipoReferenciaDto;
+
 @Getter
 @Setter
 public class MiembroSalidaDto implements Serializable {
@@ -19,6 +21,5 @@ public class MiembroSalidaDto implements Serializable {
     private String estado;
     private LocalDateTime fechaUnion;
 
-    // Nota: Opcionalmente, podrías incluir aquí información básica del Equipo y del Usuario
-    // si las relaciones son cargadas con EAGER o mapeadas manualmente en el servicio.
+    private EquipoReferenciaDto equipo;
 }
