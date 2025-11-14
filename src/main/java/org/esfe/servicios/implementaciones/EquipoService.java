@@ -3,10 +3,12 @@ package org.esfe.servicios.implementaciones;
 import org.esfe.dtos.equipo.*;
 import org.esfe.modelos.Equipo;
 import org.esfe.repositorios.IEquipoRepository;
+import org.esfe.repositorios.IMiembroEquipoRepository;
 import org.esfe.servicios.interfaces.IEquipoService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -21,11 +23,13 @@ import java.util.stream.Collectors;
 public class EquipoService implements IEquipoService {
 
     private final IEquipoRepository equipoRepository;
+    private final IMiembroEquipoRepository miembroEquipoRepository;
     private final ModelMapper modelMapper;
 
     @Autowired
-    public EquipoService(IEquipoRepository equipoRepository, ModelMapper modelMapper) {
+    public EquipoService(IEquipoRepository equipoRepository, IMiembroEquipoRepository miembroEquipoRepository, ModelMapper modelMapper) {
         this.equipoRepository = equipoRepository;
+        this.miembroEquipoRepository = miembroEquipoRepository;
         this.modelMapper = modelMapper;
     }
 
@@ -154,5 +158,31 @@ public class EquipoService implements IEquipoService {
 
         Equipo actualizado = equipoRepository.save(existente);
         return mapToDto(actualizado);
+    }
+    @Override
+    public Page<EquipoSalidaDto> obtenerEquiposPorUsuario(Integer usuarioId, Pageable pageable) {
+        // 1. Obtener la página de IDs de equipos a los que pertenece el usuario.
+        // Se usa el repositorio de Miembros para filtrar.
+        Page<Integer> equipoIdsPage = miembroEquipoRepository.findEquipoIdsByUsuarioIdAndEstadoActivo(usuarioId, pageable);
+
+        // 2. Si no hay IDs, devolver una página vacía.
+        if (equipoIdsPage.isEmpty()) {
+            return Page.empty(pageable);
+        }
+
+        // 3. Obtener la lista de IDs (solo el contenido de la página)
+        List<Integer> equipoIds = equipoIdsPage.getContent();
+
+        // 4. Obtener todos los objetos Equipo completos de la base de datos.
+        List<Equipo> equipos = equipoRepository.findAllById(equipoIds);
+
+        // 5. Mapear las entidades Equipo a DTOs de salida.
+        List<EquipoSalidaDto> dtos = equipos.stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+
+        // 6. Devolver una nueva página con los DTOs, manteniendo la información de paginación
+        // de la consulta original de IDs.
+        return new PageImpl<>(dtos, pageable, equipoIdsPage.getTotalElements());
     }
 }
