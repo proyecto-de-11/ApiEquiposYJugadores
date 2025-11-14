@@ -35,6 +35,17 @@ public class EquipoController {
         return ResponseEntity.ok(equiposPage);
     }
 
+    @GetMapping("/mis-equipos/{usuarioId}")
+    public ResponseEntity<Page<EquipoSalidaDto>> mostrarEquiposDelUsuario(
+            @PathVariable Integer usuarioId,
+            Pageable pageable) {
+
+        Page<EquipoSalidaDto> equiposPage =
+                equipoService.obtenerEquiposPorUsuario(usuarioId, pageable);
+
+        return ResponseEntity.ok(equiposPage);
+    }
+
     @GetMapping("/filtro/deporte")
     public ResponseEntity<Page<EquipoSalidaDto>> mostrarPorTipoDeporte(
             @RequestParam Integer tipoDeporteId,
