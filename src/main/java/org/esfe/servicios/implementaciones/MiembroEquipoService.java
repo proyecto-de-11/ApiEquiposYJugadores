@@ -111,9 +111,6 @@ public class MiembroEquipoService implements IMiembroEquipoService {
         if (miembroAprobarDto.getRolAsignado() != null) {
             existente.setRol(miembroAprobarDto.getRolAsignado());
         }
-        if (miembroAprobarDto.getNumeroCamiseta() != null) {
-            existente.setNumeroCamiseta(miembroAprobarDto.getNumeroCamiseta());
-        }
 
         MiembroEquipo actualizado = miembroEquipoRepository.save(existente);
         return mapToDto(actualizado);
