@@ -36,9 +36,17 @@ public class MiembroEquipoService implements IMiembroEquipoService {
 
         // Mapeo del Equipo anidado (Necesario para MiembroSalidaDto)
         if (miembro.getEquipo() != null) {
+            // 1. ASIGNACIÓN EXPLÍCITA DEL ID DEL EQUIPO AL CAMPO equipoId DEL DTO
+            dto.setEquipoId(miembro.getEquipo().getId()); 
+            
+            // 2. Mapeo y asignación del objeto Equipo anidado
             EquipoReferenciaDto equipoDto = modelMapper.map(miembro.getEquipo(), EquipoReferenciaDto.class);
             dto.setEquipo(equipoDto);
         }
+
+        // if (miembro.getUsuario() != null) {
+        //     dto.setUsuarioId(miembro.getUsuario().getId());
+        // }
 
         return dto;
     }
