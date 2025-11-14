@@ -4,6 +4,8 @@ import org.esfe.modelos.MiembroEquipo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -27,4 +29,7 @@ public interface IMiembroEquipoRepository extends JpaRepository<MiembroEquipo, I
     List<MiembroEquipo> findByEquipoIdAndEstadoIgnoreCase(Integer equipoId, String estado);
 
     List<MiembroEquipo> findByEquipoIdAndRolIgnoreCase(Integer equipoId, String rol);
+
+    @Query("SELECT m.equipo.id FROM MiembroEquipo m WHERE m.usuarioId = :usuarioId AND m.estado = 'activo'")
+    Page<Integer> findEquipoIdsByUsuarioIdAndEstadoActivo(@Param("usuarioId") Integer usuarioId, Pageable pageable);
 }
