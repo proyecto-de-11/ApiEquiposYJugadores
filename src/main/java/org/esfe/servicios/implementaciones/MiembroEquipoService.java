@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -134,5 +135,32 @@ public class MiembroEquipoService implements IMiembroEquipoService {
     @Override
     public boolean esMiembroExistente(Integer equipoId, Integer usuarioId) {
         return miembroEquipoRepository.existsByEquipoIdAndUsuarioId(equipoId, usuarioId);
+    }
+
+    @Override
+    public MiembroSalidaDto crearMembresiaDesdeInvitacion(Integer equipoId, Integer usuarioId) {
+        // 1. Validar que no sea miembro existente
+        if (esMiembroExistente(equipoId, usuarioId)) {
+            throw new IllegalArgumentException("El usuario ID " + usuarioId + " ya es miembro del equipo ID " + equipoId);
+        }
+
+        // 2. Obtener el Equipo para la entidad
+        Equipo equipo = equipoRepository.findById(equipoId)
+                .orElseThrow(() -> new NoSuchElementException("Equipo no encontrado con ID: " + equipoId));
+        
+        // 3. Crear la entidad MiembroEquipo con valores por defecto
+        MiembroEquipo nuevoMiembro = new MiembroEquipo();
+        nuevoMiembro.setEquipo(equipo);
+        nuevoMiembro.setUsuarioId(usuarioId);
+        
+        // Asignar valores por defecto al unirse por invitación
+        nuevoMiembro.setRol("jugador"); 
+        nuevoMiembro.setEstado("activo"); 
+        // La fecha_union se maneja con @PrePersist o se asigna aquí:
+        nuevoMiembro.setFechaUnion(LocalDateTime.now()); 
+
+        // 4. Guardar y devolver DTO
+        MiembroEquipo guardado = miembroEquipoRepository.save(nuevoMiembro);
+        return mapToDto(guardado);
     }
 }
