@@ -6,6 +6,8 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+import org.esfe.enums.EstadoInvitacion;
+
 @Getter
 @Setter
 @Entity
@@ -36,8 +38,9 @@ public class InvitacionEquipo {
     @Column(name = "mensaje", columnDefinition = "TEXT")
     private String mensaje;
 
-    @Column(name = "estado", length = 50, columnDefinition = "VARCHAR(50) DEFAULT 'pendiente'")
-    private String estado;
+    @Enumerated(EnumType.STRING) // IMPORTANTE: Guarda la cadena de texto de la constante
+    @Column(name = "estado", length = 50, columnDefinition = "VARCHAR(50) DEFAULT 'PENDIENTE'") // Ajustar el DEFAULT
+    private EstadoInvitacion estado = EstadoInvitacion.PENDIENTE;
 
     @Column(name = "fecha_respuesta")
     private LocalDateTime fechaRespuesta;
@@ -49,10 +52,6 @@ public class InvitacionEquipo {
     protected void onCreate() {
         if (this.fechaCreacion == null) {
             this.fechaCreacion = LocalDateTime.now();
-        }
-        // El estado por defecto ('pendiente') se puede inicializar aquí o en el constructor
-        if (this.estado == null) {
-            this.estado = "pendiente";
         }
     }
 }
