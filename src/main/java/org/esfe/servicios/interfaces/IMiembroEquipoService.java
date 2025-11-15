@@ -7,7 +7,6 @@ import org.esfe.dtos.miembro.MiembroSalidaDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface IMiembroEquipoService {
@@ -31,4 +30,6 @@ public interface IMiembroEquipoService {
 
     // 5. UTILIDAD
     boolean esMiembroExistente(Integer equipoId, Integer usuarioId);
+
+    MiembroSalidaDto crearMembresiaDesdeInvitacion(Integer equipoId, Integer usuarioId);
 }
