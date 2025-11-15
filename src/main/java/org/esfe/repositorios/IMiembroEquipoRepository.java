@@ -30,6 +30,8 @@ public interface IMiembroEquipoRepository extends JpaRepository<MiembroEquipo, I
 
     List<MiembroEquipo> findByEquipoIdAndRolIgnoreCase(Integer equipoId, String rol);
 
+    long countByEquipoIdAndEstado(Integer equipoId, String estado);
+
     @Query("SELECT m.equipo.id FROM MiembroEquipo m WHERE m.usuarioId = :usuarioId AND m.estado = 'activo'")
     Page<Integer> findEquipoIdsByUsuarioIdAndEstadoActivo(@Param("usuarioId") Integer usuarioId, Pageable pageable);
 }
