@@ -4,8 +4,11 @@ import org.esfe.modelos.CalificacionEquipo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Repository
@@ -33,4 +36,13 @@ public interface ICalificacionEquipoRepository extends JpaRepository<Calificacio
      */
     boolean existsByPartidoIdAndEvaluadorIdAndEquipoEvaluadoId(
             Integer partidoId, Integer evaluadorId, Integer equipoEvaluadoId);
+
+    @Query("SELECT AVG(c.puntuacion) FROM CalificacionEquipo c WHERE c.equipoEvaluado.id = :equipoId")
+    Optional<BigDecimal> calcularPromedioPuntuacion(@Param("equipoId") Integer equipoId);
+
+    /**
+     * Cuenta el número total de calificaciones de un equipo específico directamente desde la BD.
+     */
+    @Query("SELECT COUNT(c) FROM CalificacionEquipo c WHERE c.equipoEvaluado.id = :equipoId")
+    Long contarTotalCalificaciones(@Param("equipoId") Integer equipoId);
 }
