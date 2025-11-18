@@ -25,15 +25,10 @@ public class CalificacionEquipoController {
         this.calificacionEquipoService = calificacionEquipoService;
     }
 
-    /**
-     * Temporalmente, esta función devuelve un ID fijo (1) para simular al usuario autenticado.
-     * DEBE ser reemplazada por la lógica de Spring Security (ej. SecurityContextHolder)
-     * cuando se implemente la autenticación.
+    /* * NOTA: Se elimina el método getAuthenticatedUserId() temporal para
+     * forzar que el ID del usuario autenticado venga de una cabecera (Header).
+     * Esto simula mejor un entorno de microservicios o autenticación externa.
      */
-    private Integer getAuthenticatedUserId() {
-        // ID Temporal para pruebas funcionales del servicio sin Spring Security.
-        return 1;
-    }
 
     // --- Métodos de Creación y Consulta ---
 
@@ -83,13 +78,14 @@ public class CalificacionEquipoController {
 
     /**
      * Edita una calificación existente.
-     * Utiliza el ID fijo temporal (1) para la validación de propiedad.
+     * El ID del usuario autenticado se obtiene de la cabecera 'X-User-ID'.
+     *
+     * @param usuarioAutenticadoId El ID del usuario autenticado, inyectado desde la cabecera X-User-ID.
      */
     @PutMapping("/{id}")
     public ResponseEntity<?> editarCalificacion(@PathVariable Integer id,
-                                                @Valid @RequestBody CalificacionActualizarDto calificacionActualizarDto) {
-
-        Integer usuarioAutenticadoId = getAuthenticatedUserId();
+                                                @Valid @RequestBody CalificacionActualizarDto calificacionActualizarDto,
+                                                @RequestHeader(name = "X-User-ID", required = true) Integer usuarioAutenticadoId) {
 
         try {
             calificacionActualizarDto.setId(id);
@@ -107,12 +103,13 @@ public class CalificacionEquipoController {
 
     /**
      * Elimina una calificación existente.
-     * Utiliza el ID fijo temporal (1) para la validación de propiedad.
+     * El ID del usuario autenticado se obtiene de la cabecera 'X-User-ID'.
+     *
+     * @param usuarioAutenticadoId El ID del usuario autenticado, inyectado desde la cabecera X-User-ID.
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> eliminarCalificacion(@PathVariable Integer id) {
-
-        Integer usuarioAutenticadoId = getAuthenticatedUserId();
+    public ResponseEntity<String> eliminarCalificacion(@PathVariable Integer id,
+                                                       @RequestHeader(name = "X-User-ID", required = true) Integer usuarioAutenticadoId) {
 
         try {
             calificacionEquipoService.eliminarPorId(id, usuarioAutenticadoId);
