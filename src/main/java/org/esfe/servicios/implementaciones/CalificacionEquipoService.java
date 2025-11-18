@@ -41,9 +41,7 @@ public class CalificacionEquipoService implements ICalificacionEquipoService {
     }
 
     /**
-     * Recalcula el promedio y el total de calificaciones de un equipo de manera eficiente
-     * usando consultas de agregación JPQL (asumiendo que ICalificacionEquipoRepository
-     * tiene los métodos calcularPromedioPuntuacion y contarTotalCalificaciones).
+     * Recalcula el promedio y el total de calificaciones de un equipo.
      */
     private void actualizarPromedioEquipo(Integer equipoId) {
         Equipo equipo = equipoRepository.findById(equipoId)
@@ -66,6 +64,15 @@ public class CalificacionEquipoService implements ICalificacionEquipoService {
         equipoRepository.save(equipo);
     }
 
+    /**
+     * Lógica central de validación de propiedad. Lanza SecurityException si los IDs no coinciden.
+     */
+    private void validarPropiedad(CalificacionEquipo calificacion, Integer usuarioAutenticadoId) {
+        if (!calificacion.getEvaluadorId().equals(usuarioAutenticadoId)) {
+            throw new SecurityException("Acceso denegado: Solo el evaluador original (ID " + calificacion.getEvaluadorId() + ") puede editar o eliminar esta calificación.");
+        }
+    }
+
     @Override
     public Optional<CalificacionSalidaDto> obtenerPorId(Integer id) {
         return calificacionEquipoRepository.findById(id)
@@ -75,11 +82,9 @@ public class CalificacionEquipoService implements ICalificacionEquipoService {
     @Override
     @Transactional
     public CalificacionSalidaDto crear(CalificacionCrearDto calificacionCrearDto) {
-        // 1. Validar que el equipo exista
         Equipo equipoEvaluado = equipoRepository.findById(calificacionCrearDto.getEquipoEvaluadoId())
                 .orElseThrow(() -> new NoSuchElementException("El equipo evaluado con ID " + calificacionCrearDto.getEquipoEvaluadoId() + " no existe."));
 
-        // 2. Validar unicidad (si está ligada a un partido)
         if (calificacionCrearDto.getPartidoId() != null && calificacionEquipoRepository.existsByPartidoIdAndEvaluadorIdAndEquipoEvaluadoId(
                 calificacionCrearDto.getPartidoId(),
                 calificacionCrearDto.getEvaluadorId(),
@@ -87,13 +92,11 @@ public class CalificacionEquipoService implements ICalificacionEquipoService {
             throw new IllegalStateException("Ya existe una calificación de este evaluador para este equipo en el partido " + calificacionCrearDto.getPartidoId());
         }
 
-        // 3. Mapear y guardar
         CalificacionEquipo calificacion = mapToEntity(calificacionCrearDto);
-        calificacion.setEquipoEvaluado(equipoEvaluado); // Establecer la relación ManyToOne
-        
+        calificacion.setEquipoEvaluado(equipoEvaluado);
+
         CalificacionEquipo nuevaCalificacion = calificacionEquipoRepository.save(calificacion);
-        
-        // 4. Actualizar el promedio del equipo de manera eficiente
+
         actualizarPromedioEquipo(nuevaCalificacion.getEquipoEvaluado().getId());
 
         return mapToDto(nuevaCalificacion);
@@ -101,16 +104,19 @@ public class CalificacionEquipoService implements ICalificacionEquipoService {
 
     @Override
     @Transactional
-    public CalificacionSalidaDto editar(CalificacionActualizarDto calificacionActualizarDto) {
+    public CalificacionSalidaDto editar(CalificacionActualizarDto calificacionActualizarDto, Integer usuarioAutenticadoId) {
         CalificacionEquipo calificacionExistente = calificacionEquipoRepository.findById(calificacionActualizarDto.getId())
                 .orElseThrow(() -> new NoSuchElementException("Calificación no encontrada con ID: " + calificacionActualizarDto.getId()));
 
-        // 1. Actualizar campos usando ModelMapper
+        // 1. Validar que el usuario autenticado sea el evaluador original
+        validarPropiedad(calificacionExistente, usuarioAutenticadoId);
+
+        // 2. Actualizar campos
         modelMapper.map(calificacionActualizarDto, calificacionExistente);
-        
+
         CalificacionEquipo calificacionActualizada = calificacionEquipoRepository.save(calificacionExistente);
-        
-        // 2. Actualizar el promedio del equipo de manera eficiente
+
+        // 3. Recalcular promedio
         actualizarPromedioEquipo(calificacionActualizada.getEquipoEvaluado().getId());
 
         return mapToDto(calificacionActualizada);
@@ -118,15 +124,19 @@ public class CalificacionEquipoService implements ICalificacionEquipoService {
 
     @Override
     @Transactional
-    public void eliminarPorId(Integer id) {
+    public void eliminarPorId(Integer id, Integer usuarioAutenticadoId) {
         CalificacionEquipo calificacion = calificacionEquipoRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Calificación no encontrada con ID: " + id));
 
+        // 1. Validar que el usuario autenticado sea el evaluador original
+        validarPropiedad(calificacion, usuarioAutenticadoId);
+
         Integer equipoId = calificacion.getEquipoEvaluado().getId();
-        
+
+        // 2. Eliminar
         calificacionEquipoRepository.delete(calificacion);
 
-        // Actualizar el promedio del equipo de manera eficiente
+        // 3. Recalcular promedio
         actualizarPromedioEquipo(equipoId);
     }
 
