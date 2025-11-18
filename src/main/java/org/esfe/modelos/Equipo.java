@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -21,7 +22,6 @@ public class Equipo {
     @Column(name = "nombre", nullable = false, length = 255)
     private String nombre;
 
-    // FK a la API de Usuarios: el usuario que creó el equipo
     @Column(name = "creado_por", nullable = false)
     private Integer creadoPor;
 
@@ -68,8 +68,17 @@ public class Equipo {
     @Column(name = "fecha_actualizacion", nullable = false)
     private LocalDateTime fechaActualizacion;
 
+    // 1. Relación One-to-Many con Miembros del Equipo
     @OneToMany(mappedBy = "equipo", cascade = CascadeType.ALL, orphanRemoval = true)
-    private java.util.Set<MiembroEquipo> miembros;
+    private Set<MiembroEquipo> miembros; 
+
+    // 2. Relación One-to-Many con Invitaciones 
+    @OneToMany(mappedBy = "equipo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<InvitacionEquipo> invitaciones; 
+
+    // 3. Relación One-to-Many con Calificaciones
+    @OneToMany(mappedBy = "equipoEvaluado", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CalificacionEquipo> calificacionesRecibidas;
 
     @PrePersist
     protected void onCreate() {
