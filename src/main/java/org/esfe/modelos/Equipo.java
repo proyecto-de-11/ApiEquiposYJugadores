@@ -80,6 +80,8 @@ public class Equipo {
     @OneToMany(mappedBy = "equipoEvaluado", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CalificacionEquipo> calificacionesRecibidas;
 
+    @OneToOne(mappedBy = "equipo", cascade = CascadeType.ALL, orphanRemoval = true) EstadisticasEquipo estadisticas;
+
     @PrePersist
     protected void onCreate() {
         this.fechaCreacion = LocalDateTime.now();
