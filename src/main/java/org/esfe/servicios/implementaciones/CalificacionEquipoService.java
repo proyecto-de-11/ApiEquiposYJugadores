@@ -3,6 +3,7 @@ package org.esfe.servicios.implementaciones;
 import org.esfe.dtos.calificacion.CalificacionActualizarDto;
 import org.esfe.dtos.calificacion.CalificacionCrearDto;
 import org.esfe.dtos.calificacion.CalificacionSalidaDto;
+import org.esfe.dtos.equipo.EquipoReferenciaDto;
 import org.esfe.modelos.CalificacionEquipo;
 import org.esfe.modelos.Equipo;
 import org.esfe.repositorios.ICalificacionEquipoRepository;
@@ -33,7 +34,27 @@ public class CalificacionEquipoService implements ICalificacionEquipoService {
     }
 
     private CalificacionSalidaDto mapToDto(CalificacionEquipo calificacion) {
-        return modelMapper.map(calificacion, CalificacionSalidaDto.class);
+        // 1. Mapea la calificación base (propiedades planas)
+        CalificacionSalidaDto dto = modelMapper.map(calificacion, CalificacionSalidaDto.class);
+
+        // 2. Mapeo Explícito del ID del Equipo (¡La Corrección!)
+        // Se asegura que el ID del equipoEvaluado se asigne al campo equipoEvaluadoId del DTO.
+        if (calificacion.getEquipoEvaluado() != null) {
+            // Asignamos el ID plano del equipoEvaluado
+            dto.setEquipoEvaluadoId(calificacion.getEquipoEvaluado().getId());
+
+            // 3. Mapea y asigna explícitamente el objeto EquipoReferenciaDto
+            // El campo 'equipoEvaluado' de la entidad se mapea al campo 'equipo' del DTO de salida
+            EquipoReferenciaDto equipoReferenciaDto = modelMapper.map(
+                    calificacion.getEquipoEvaluado(), EquipoReferenciaDto.class);
+            dto.setEquipo(equipoReferenciaDto);
+        } else {
+            // Si el equipo es null, ambos campos deberían ser null
+            dto.setEquipoEvaluadoId(null);
+            dto.setEquipo(null);
+        }
+
+        return dto;
     }
 
     private CalificacionEquipo mapToEntity(Object dto) {
