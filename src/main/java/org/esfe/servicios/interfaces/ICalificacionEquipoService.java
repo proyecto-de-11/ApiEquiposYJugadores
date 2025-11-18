@@ -21,15 +21,14 @@ public interface ICalificacionEquipoService {
     CalificacionSalidaDto crear(CalificacionCrearDto calificacionCrearDto);
 
     /**
-     * Edita una calificación existente y recalcula el promedio del equipo.
+     * Edita una calificación existente. Requiere el ID del usuario que intenta la acción para validar la propiedad.
      */
-    CalificacionSalidaDto editar(CalificacionActualizarDto calificacionActualizarDto);
+    CalificacionSalidaDto editar(CalificacionActualizarDto calificacionActualizarDto, Integer usuarioAutenticadoId);
 
     /**
-     * Elimina una calificación por su ID y recalcula el promedio del equipo.
-     * @param id El ID de la calificación a eliminar.
+     * Elimina una calificación por su ID. Requiere el ID del usuario que intenta la acción para validar la propiedad..
      */
-    void eliminarPorId(Integer id);
+    void eliminarPorId(Integer id, Integer usuarioAutenticadoId);
 
     /**
      * Obtiene todas las calificaciones de un equipo específico, con paginación.
