@@ -9,7 +9,7 @@ WORKDIR /app
 COPY pom.xml .
 COPY src ./src
 
-# Compila el proyecto, saltando las pruebas
+# Compila el proyecto. Esto genera el JAR en /app/target/
 RUN --mount=type=cache,target=/root/.m2 mvn clean package -DskipTests
 
 # --- Segunda fase: Ejecución ---
@@ -19,13 +19,14 @@ FROM openjdk:21-jdk-slim
 # Establece el directorio de trabajo
 WORKDIR /app
 
-# Copia el JAR generado y lo renombra a "app.jar" para simplificar
-RUN --from=build sh -c "ls /app/target/*.jar | xargs -n1 cp {} /app/app.jar"
+# Línea CORREGIDA: Usa COPY --from=build para transferir el JAR
+# El asterisco (*) encuentra el JAR con la versión (ej: ApiEquiposYJugadores-0.0.1-SNAPSHOT.jar)
+# y lo copia y renombra a app.jar en el directorio actual.
+COPY --from=build /app/target/*.jar /app/app.jar
 
 # Expone el puerto de la aplicación
 EXPOSE 8082
 
 # Comando para ejecutar la aplicación
-# Si tienes varias configuraciones (e.g., application-prod.properties),
-# usarías -Dspring.profiles.active=prod aquí.
+# NOTA: Usamos el puerto 8082 que configuraste.
 CMD ["java", "-jar", "/app/app.jar"]
