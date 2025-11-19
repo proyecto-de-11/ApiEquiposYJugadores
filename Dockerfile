@@ -13,8 +13,9 @@ COPY src ./src
 RUN --mount=type=cache,target=/root/.m2 mvn clean package -DskipTests
 
 # --- Segunda fase: Ejecución ---
-# Usa una imagen ligera de OpenJDK 21 para la ejecución
-FROM openjdk:21-jdk-slim
+# CAMBIO CRUCIAL: Usamos una imagen ligera de JRE 21 que es más fiable.
+# Usamos 'eclipse-temurin' con el JRE para mantener la consistencia y reducir tamaño.
+FROM eclipse-temurin:21-jre-alpine
 
 # Establece el directorio de trabajo
 WORKDIR /app
